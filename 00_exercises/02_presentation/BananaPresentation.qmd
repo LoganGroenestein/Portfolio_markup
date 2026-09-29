@@ -1,0 +1,146 @@
+---
+title: "Banana peel weight"
+subtitle: "A bunch of nonsense (mostly) about the banana data I collected"
+author:
+  - name: "Logan Groenestein"
+    orcid: 0009-0008-2637-5923
+    email: l.m.groenestein@uu.nl
+date: 30 Sep 2026
+date-format: "D MMM YYYY"
+bibliography: exercise2bib.bib
+format: 
+  revealjs:
+    logo: "crochetloon.jpeg"
+    footer: Some footer text
+    scrollable: true
+---
+
+```{r}
+library(tidyverse)
+library(plotly)
+library(DT)
+library(renv)
+```
+
+```{r}
+#| cache: true
+
+# Loading data and creating variables
+
+data <- read_csv("Banana peel weight - Sheet1.csv") |> as.data.frame()
+
+colnames(data) <- c("consumption", "purchase", "fullwgt", "peelwgt", 
+                    "ediblewgt", "age")
+
+data <- data[!is.na(data$consumption),]
+
+# creating bunch variable based on purchase (not used here but still nice)
+data$bunch <- factor(data$purchase)
+levels(data$bunch) <- seq(1, length(levels(data$bunch)))
+data$bunch <- as.numeric(data$bunch)
+
+# centering variables of interest
+data$fullwgt_c <- scale(data$fullwgt, scale = FALSE) |> as.numeric()
+data$peelwgt_c <- scale(data$peelwgt, scale = FALSE) |> as.numeric()
+data$ediblewgt_c <- scale(data$ediblewgt, scale = FALSE) |> as.numeric()
+data$age_c <- scale(data$age, scale = FALSE) |> as.numeric()
+```
+
+## Research Question(s)
+
+::: columns
+
+::: {.column width="45%"}
+
+Original question:
+
+- Is the relationship between banana size and banana weight linear?
+
+:::
+
+::: {.column width="10%"}
+
+:::
+
+::: {.column width="45%"}
+
+What I can (kind of) answer:
+
+- Do banana peels get thinner (lighter) as the bananas age?
+
+:::
+
+:::
+
+## My data
+
+```{r}
+#| label: tbl-data
+#| tbl-cap: Banana data
+
+data[,1:7] |> datatable(options = list(pageLength = 5))
+```
+
+Here in @tbl-data you can see the data I painstakingly collected for almost four months.
+
+## Computing Centered Edible Weight
+
+The (centered) "edible" weight of the bananas was not directly observed, so I had to compute it as
+
+
+\begin{align*}
+EdibleW_{C, i} & = EdibleW_i - \mu_{EdibleW} \\
+& = FullW_i - PeelW_i - \mu_{EdibleW}, \\
+\end{align*}
+
+
+where $FullW_i$ is a banana's full weight including peel, $PeelW_i$ is the peel weight, and $\mu_{EdibleW}$ the mean "edible" banana weight, with $i = 1, \dots, n$. 
+
+## Now in code
+
+```{r}
+#| echo: true
+#| eval: false
+
+data$ediblewgt <- data$fullwgt - data$peelwgt
+data$ediblewgt_c <- scale(data$ediblewgt, scale = FALSE) |> as.numeric()
+```
+
+## Still figure
+
+```{r}
+#| label: fig-still
+#| fig-cap: Plot of bananas' full weights and peel weights and age in days since purchase
+ggplot(data, aes(x = fullwgt, y = peelwgt)) + 
+  geom_point(aes(colour = age)) +
+  xlab("Full weight of banana in grams") +
+  ylab("Banana peel weight in grams") +
+  theme_bw()
+```
+
+Here, @fig-still shows the relationship between bananas' full and peel weights, as well as their age.
+
+## Interactive figure
+
+```{r}
+#| label: fig-wgt
+#| fig-cap: Interactive plot of bananas' full weights and peel weights and age in days since purchase
+p <- ggplot(data, aes(x = fullwgt, y = peelwgt)) + 
+  geom_point(aes(colour = age)) +
+  xlab("Full weight of banana in grams") +
+  ylab("Banana peel weight in grams") +
+  theme_bw()
+
+ggplotly(p)
+```
+
+And @fig-wgt is an interactive version of @fig-still. 
+
+## Citing a reference
+
+I don't actually have any references for this, because I just kind of messed around by myself and did not look into any literature about bananas. Anyways, here's a source I had laying around in Zotero because I used it for my bachelor thesis @chambers.
+
+## Reference(s)
+
+::: {refs}
+:::
