@@ -1,0 +1,67 @@
+---
+title: "My Reproducible Manuscript"
+author: "Logan Groenestein"
+format: 
+  pdf: default
+bibliography: references.bib
+---
+
+```{r}
+# Load penguins
+library(ggplot2)
+```
+
+## Meet Quarto
+
+Quarto enables you to weave together content and executable code into a finished document. To learn more about Quarto see <https://quarto.org>.
+
+## Meet the penguins
+
+The `penguins` data from the [palmerpenguins](https://allisonhorst.github.io/palmerpenguins/) package contains size measurements for 344 penguins from three species observed on three islands in the Palmer Archipelago, Antarctica. 
+
+![](https://allisonhorst.github.io/palmerpenguins/reference/figures/lter_penguins.png)
+
+Here's a citation: @horstJournalPalmerArchipelago2022
+
+## Results
+
+```{r}
+# Read data
+penguins <- read.csv("../data/data.csv")
+## For some reason the original without "../" at the start didn't work, even
+## though I've checked again and again that the working directory should be
+## correct. It seems like it still wants to look for the file within the docs
+## folder instead of the working directory and the prefix seems to fix that.
+## I think this tells it to back out of the docs folder to the project folder,
+## so that it can then look for the data folder there.
+```
+
+```{r}
+# Plot penguins
+ggplot(penguins, 
+       aes(x = `Flipper.Length..mm.`, y = `Culmen.Length..mm.`)) +
+        geom_point(aes(color = Species, shape = Species)) +
+        scale_color_manual(values = c("darkorange","purple","cyan4")) +
+        labs(
+                title = "Flipper and Culmen length",
+                subtitle = "Dimensions for penguins at Palmer Station LTER",
+                x = "Flipper length (mm)", y = "Culmen length (mm)",
+                color = "Penguin species", shape = "Penguin species"
+        ) +
+        theme_minimal()
+```
+
+Doing a simple calculation within my text to calculate `r 25+25`. 
+
+There are `r sum(penguins$Species=="Gentoo penguin (Pygoscelis papua)")` Gentoo penguins, and `r sum(penguins$Species=="Chinstrap penguin (Pygoscelis antarctica)")` Chinstrap penguins in the data.
+
+I don't think I need another in-line computation or calculation, but I guess we can calculate that `r 100*mean(penguins$Region=="Anvers")` percent of the penguins in the data are in the Anvers region.
+
+```{r}
+#| file: "../scripts/do_addition.R"
+#| eval: true
+```
+
+Now I can use this function to once again calculate that 25 + 25 = `r do_addition(25, 25)`
+
+I guess I can use this to define functions (e.g. for my simulation) in a different file than where I produce the rest of my thesis, so that I don't need to scroll over all of the simulation code when I'm just writing my thesis? Then in practice I would probably want to do something different with the combination of what is executed vs shown in the rendered file.
